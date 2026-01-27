@@ -35,7 +35,7 @@ export const makeTestTodos = () => {
     const newTodo = {
       id: index.toString(),
       description: `Todo ${index}`,
-      createdAt: `date${index}`
+      createdAt: `date ${index}`
     }
     return newTodo
   })

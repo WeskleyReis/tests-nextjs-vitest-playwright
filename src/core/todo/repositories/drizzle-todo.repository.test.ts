@@ -94,7 +94,7 @@ describe('DeizzleTodoRepository (integration)', () => {
 
       expect(result).toStrictEqual({
         success: false,
-        errors: ['Já existe um todo com o ID e descrição enviados'],
+        errors: ['Já existe um todo com o ID ou descrição enviados'],
       })
     })
   })
@@ -102,6 +102,7 @@ describe('DeizzleTodoRepository (integration)', () => {
   describe('remove', () => {
     test('apaga um todo se ele existir', async () => {
       const { repository, todos } = await makeTestTodoRepository()
+      await insertTestTodos()
       const result = await repository.remove(todos[0].id)
 
       expect(result).toStrictEqual({
