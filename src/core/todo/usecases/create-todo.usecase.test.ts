@@ -13,7 +13,7 @@ describe('createTodoUseCase (integration)', () => {
     await deleteTodoNoWhere()
   })
 
-  test("deve retornar erro se a validação falhar", async () => {
+  test('deve retornar erro se a validação falhar', async () => {
     const result = await createTodoUseCase('') as InvalidTodo
 
     expect(result.success).toBe(false)
@@ -42,7 +42,7 @@ describe('createTodoUseCase (integration)', () => {
 
     expect(result.success).toBe(false)
     expect(result.errors).toStrictEqual([
-      "Já existe um todo com o ID ou descrição enviados"
+      'Já existe um todo com o ID ou descrição enviados'
     ])
   })
 })
