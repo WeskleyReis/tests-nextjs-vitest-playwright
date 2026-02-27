@@ -6,9 +6,9 @@ type Props = Partial<InputTextProps>
 
 const makeInput = (p: Props = {}) => {
   return (
-    <InputText 
-      labelText="label" 
-      placeholder="placeholder" 
+    <InputText
+      labelText="label"
+      placeholder="placeholder"
       type="text" 
       disabled={false}
       required={true}
@@ -41,12 +41,12 @@ describe('<InputText />', () => {
     })
     
     test('renderiza sem placeholder', async () => {
-      const el = input ({ placeholder: undefined})
+      const el = input ({ placeholder: undefined })
       expect(el).not.toHaveAttribute('placeholder')
     })
     
     test('renderiza sem label', async () => {
-      input ({ labelText: undefined})
+      input ({ labelText: undefined })
       const label = screen.queryByRole('novo label')
       expect(label).not.toBeInTheDocument()
     })
@@ -65,7 +65,7 @@ describe('<InputText />', () => {
     })
 
     test('aceita outras props do JSX (name, maxLenght)', async () => {
-      const el = input({ name: 'name', maxLength: 10})
+      const el = input({ name: 'name', maxLength: 10 })
       expect(el).toHaveAttribute('name', 'name')
       expect(el).toHaveAttribute('maxLength', '10')
     })
@@ -85,7 +85,7 @@ describe('<InputText />', () => {
     })
 
     test('renderiza mensagem de erro quanto `errorMessage` é passada', async () => {
-      const el = input({ errorMessage: 'Tem erro'})
+      const el = input({ errorMessage: 'Tem erro' })
       const error = screen.getByRole('alert')
       const errorId = error.getAttribute('id')
 
