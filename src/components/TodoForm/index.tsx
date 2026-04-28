@@ -11,7 +11,7 @@ export type TodoFormProps = {
 }
 
 export function TodoForm({ action }: TodoFormProps) {
-  const [pending, startTrasintion] = useTransition()
+  const [pending, startTransition] = useTransition()
   const [inputError, setInputError] = useState('')
   const ref = useRef<HTMLInputElement>(null)
 
@@ -24,7 +24,7 @@ export function TodoForm({ action }: TodoFormProps) {
 
     const description = sanitizeStr(input.value)
 
-    startTrasintion(async () => {
+    startTransition(async () => {
       const result = await action(description)
 
       if(!result.success) {
