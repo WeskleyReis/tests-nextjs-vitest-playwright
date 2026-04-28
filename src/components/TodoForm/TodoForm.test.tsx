@@ -33,7 +33,7 @@ describe('<TodoForm /> (integration)', () => {
   })
 
   test ('deve desativar o botão enquanto envia a action', async () => {
-    const { btn, input } = renderForm({ delay: 5 })
+    const { btn, input } = renderForm({ delay: 20 })
     await user.type(input, 'tarefa')
     await user.click(btn)
     
@@ -42,7 +42,7 @@ describe('<TodoForm /> (integration)', () => {
   })
 
   test ('deve desativar o input enquanto envia a action', async () => {
-    const { btn, input } = renderForm({ delay: 10 })
+    const { btn, input } = renderForm({ delay: 20 })
     await user.type(input, 'tarefa')
     await user.click(btn)
     
@@ -51,7 +51,7 @@ describe('<TodoForm /> (integration)', () => {
   })
 
   test ('deve trocar o texto do botão enquanto envia a action', async () => {
-    const { btn, input } = renderForm({ delay: 15 })
+    const { btn, input } = renderForm({ delay: 20 })
     await user.type(input, 'tarefa')
     await user.click(btn)
     
