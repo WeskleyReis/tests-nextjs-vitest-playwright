@@ -20,7 +20,7 @@ describe('<TodoForm /> (integration)', () => {
 
   test ('deve cortar espaços do início e fim da description (trim)', async () => {
     const { btn, input, action } = renderForm()
-    await user.type(input, '    tarefa    ')
+    await user.type(input, '  tarefa   ')
     await user.click(btn)
     expect(action).toHaveBeenCalledExactlyOnceWith('tarefa')
   })
