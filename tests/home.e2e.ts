@@ -1,11 +1,11 @@
-import { makeTestTodoRepository } from '@/core/__tests__/utils/make-test-todo-repository'
+import { insertTestTodos, makeTestTodoRepository } from '@/core/__tests__/utils/make-test-todo-repository'
 import { test, expect, Page } from '@playwright/test'
 
 const HOME_URL = '/'
 const HEADING = 'Lista de tarefas'
 const INPUT = 'Tarefa'
 const BUTTON = 'Criar tarefa'
-const BUTTON_BUSY = 'Criando tarefa'
+const BUTTON_BUSY = 'Criando tarefa...'
 const NEW_TODO_TEXT = 'New Todo'
 
 const getHeading = (p: Page) => p.getByRole('heading', { name: HEADING })
@@ -49,7 +49,7 @@ test.describe('<Home /> (E2E)', () => {
 
   test.describe('Criação', () => {
     test('deve permitir criar um TODO', async ({ page }) => {
-      const {btn, input} = getAll(page)
+      const { btn, input } = getAll(page)
 
       await input.fill(NEW_TODO_TEXT)
       await btn.click()
@@ -62,7 +62,7 @@ test.describe('<Home /> (E2E)', () => {
 
     test('deve fazer o trim da descrição do input ao criar o TODO',
       async ({ page }) => {
-      const {btn, input} = getAll(page)
+      const { btn, input } = getAll(page)
 
       const textToBeTrimmed = '   no spaces here   '
       const textTrimmed = textToBeTrimmed.trim()
@@ -79,7 +79,7 @@ test.describe('<Home /> (E2E)', () => {
     })
 
     test('deve permitir que eu crie mais de um TODO', async ({ page }) => {
-      const {btn, input} = getAll(page)
+      const { btn, input } = getAll(page)
 
       const todo1 = 'Todo 1'
       const todo2 = 'Todo 2'
@@ -102,7 +102,7 @@ test.describe('<Home /> (E2E)', () => {
     })
 
     test('deve desativar o botão enquanto cria o TODO', async ({ page }) => {
-      const {btn, input} = getAll(page)
+      const { btn, input } = getAll(page)
 
       await input.fill(NEW_TODO_TEXT)
       await btn.click()
@@ -120,7 +120,7 @@ test.describe('<Home /> (E2E)', () => {
     })
 
     test('deve desativar o input enquanto cria o TODO', async ({ page }) => {
-      const {btn, input} = getAll(page)
+      const { btn, input } = getAll(page)
 
       await input.fill(NEW_TODO_TEXT)
       await btn.click()
@@ -133,6 +133,106 @@ test.describe('<Home /> (E2E)', () => {
       await expect(createTodo).toBeVisible()
 
       await expect(input).toBeEnabled()
+    })
+
+    test('deve limpar o input após criar um TODO', async ({ page }) => {
+      const { btn, input } = getAll(page)
+      await input.fill(NEW_TODO_TEXT)
+      await btn.click()
+
+      await expect(input).toHaveValue('')
+    })
+  })
+
+  test.describe('Exclusão', () => {
+    test('deve permitir apagar um TODO', async ({ page }) => {
+      const todos = await insertTestTodos()
+      await page.reload() // make next.js revalidate cache
+
+      const itemToDelete = page
+        .getByRole('listitem')
+        .filter({ hasText: todos[1].description })
+      await expect(itemToDelete).toBeVisible()
+
+      const deleteBtn = itemToDelete.getByRole('button')
+      await deleteBtn.click()
+
+      await itemToDelete.waitFor({ state: 'detached' })
+      await expect(itemToDelete).not.toBeVisible()
+    })
+
+    test('deve permitir apagar todos os TODOs', async ({ page }) => {
+      await insertTestTodos()
+      await page.reload() // make next.js revalidate cache
+
+      while (true) {
+        const item = page.getByRole('listitem').filter()
+        const isVisible = await item.isVisible().catch(() => false)
+        if (!isVisible) break
+
+        const text = await item.textContent()
+        if (!text) {
+          throw Error('Item text not found')
+        }
+
+        const deleteBtn = item.getByRole('button')
+        await deleteBtn.click()
+
+        const renewedItem = page
+          .getByRole('listitem')
+          .filter({ hasText: text })
+        await renewedItem.waitFor({ state: 'detached' })
+        await expect(renewedItem).not.toBeVisible()
+      }
+    })
+
+    test('deve desativar os items da lista enquanto envia a action', async ({ page }) => {
+      await insertTestTodos()
+      await page.reload() // make next.js revalidate cache
+
+      const itemToBeDeleted = page.getByRole('listitem').first()
+      const itemToBeDeletedText = await itemToBeDeleted.textContent()
+
+      if (!itemToBeDeletedText) {
+        throw new Error('Item text is empty')
+      }
+
+      const deleteBtn = itemToBeDeleted.getByRole('button')
+      await deleteBtn.click()
+
+      const allDeleteButtons = await page
+        .getByRole('button', { name: /^apagar:/i })
+        .all()
+
+      for (const btn of allDeleteButtons) {
+        await expect(btn).toBeDisabled()
+      }
+
+      const deleteItemNotVisible = page.getByRole('listitem').filter({ hasText: itemToBeDeletedText })
+      await deleteItemNotVisible.waitFor({ state: 'detached' })
+      await expect(deleteItemNotVisible).not.toBeVisible()
+
+      const renewedAllButtons = await page
+        .getByRole('button', { name: /^apagar:/i })
+        .all()
+
+      for (const btn of renewedAllButtons) {
+        await expect(btn).toBeDisabled()
+      }
+    })
+  })
+
+  test.describe('Erros', () => {
+    test('deve mostrar erro se a descrição tem 3', async ({ page }) => {
+
+    })
+
+    test('deve mostrar erro se um TODO ja existir', async ({ page }) => {
+
+    })
+
+    test('deve remover o erro da tela quando o usuário', async ({ page }) => {
+
     })
   })
 })
