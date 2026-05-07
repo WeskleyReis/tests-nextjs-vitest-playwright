@@ -100,5 +100,39 @@ test.describe('<Home /> (E2E)', () => {
         .filter({ hasText: todo2 })
       await expect(todo2Item).toBeVisible()
     })
+
+    test('deve desativar o botão enquanto cria o TODO', async ({ page }) => {
+      const {btn, input} = getAll(page)
+
+      await input.fill(NEW_TODO_TEXT)
+      await btn.click()
+
+      await expect(getBtnBusy(page)).toBeVisible()
+      await expect(getBtnBusy(page)).toBeDisabled()
+
+      const createTodo = page
+        .getByRole('listitem')
+        .filter({ hasText: NEW_TODO_TEXT })
+      await expect(createTodo).toBeVisible()
+
+      await expect(btn).toBeVisible()
+      await expect(btn).toBeEnabled()
+    })
+
+    test('deve desativar o input enquanto cria o TODO', async ({ page }) => {
+      const {btn, input} = getAll(page)
+
+      await input.fill(NEW_TODO_TEXT)
+      await btn.click()
+
+      await expect(input).toBeDisabled()
+
+      const createTodo = page
+        .getByRole('listitem')
+        .filter({ hasText: NEW_TODO_TEXT })
+      await expect(createTodo).toBeVisible()
+
+      await expect(input).toBeEnabled()
+    })
   })
 })
