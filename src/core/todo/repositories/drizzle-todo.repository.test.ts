@@ -23,7 +23,6 @@ describe('DeizzleTodoRepository (integration)', () => {
       const { repository } = await makeTestTodoRepository()
       await insertTestTodos()
       const result = await repository.findAll()
-      console.log(result)
       expect(result[0].createdAt).toBe('date 4')
       expect(result[1].createdAt).toBe('date 3')
       expect(result[2].createdAt).toBe('date 2')

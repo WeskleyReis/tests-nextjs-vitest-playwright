@@ -21,15 +21,15 @@ const getAll = (p: Page) => ({
 })
 
 test.beforeEach(async ({ page }) => {
-  const {deleteTodoNoWhere} = await makeTestTodoRepository()
-  await deleteTodoNoWhere
+  const { deleteTodoNoWhere } = await makeTestTodoRepository()
+  await deleteTodoNoWhere()
 
   await page.goto(HOME_URL)
 })
 
 test.afterAll(async () => {
-  const {deleteTodoNoWhere} = await makeTestTodoRepository()
-  await deleteTodoNoWhere
+  const { deleteTodoNoWhere } = await makeTestTodoRepository()
+  await deleteTodoNoWhere()
 })
 
 test.describe('<Home /> (E2E)', () => {
@@ -166,7 +166,7 @@ test.describe('<Home /> (E2E)', () => {
       await page.reload() // make next.js revalidate cache
 
       while (true) {
-        const item = page.getByRole('listitem').filter()
+        const item = page.getByRole('listitem').first()
         const isVisible = await item.isVisible().catch(() => false)
         if (!isVisible) break
 
@@ -217,22 +217,57 @@ test.describe('<Home /> (E2E)', () => {
         .all()
 
       for (const btn of renewedAllButtons) {
-        await expect(btn).toBeDisabled()
+        await expect(btn).toBeEnabled()
       }
     })
   })
 
   test.describe('Erros', () => {
-    test('deve mostrar erro se a descrição tem 3', async ({ page }) => {
+    test('deve mostrar erro se a descrição tem 3 ou menos caracteres', async ({ page }) => {
+      const { btn, input } = getAll(page)
 
+      await input.fill('abc')
+      await btn.click()
+
+      const errorText = 'Descrição precisa ter mais de 3 caracteres'
+      const error = page.getByText(errorText)
+
+      await error.waitFor({ state: 'attached', timeout: 5000})
+      await expect(error).toBeVisible()
     })
 
-    test('deve mostrar erro se um TODO ja existir', async ({ page }) => {
+    test('deve mostrar erro se um TODO ja existir com a mesma descrição', async ({ page }) => {
+      const { btn, input } = getAll(page)
 
+      await input.fill('eu já existo')
+      await btn.click()
+      await input.fill('eu já existo')
+      await btn.click()
+
+      const errorText = 'Já existe um todo com o ID ou descrição enviados'
+      const error = page.getByText(errorText)
+
+      await error.waitFor({ state: 'attached', timeout: 5000})
+      await expect(error).toBeVisible()
     })
 
-    test('deve remover o erro da tela quando o usuário', async ({ page }) => {
+    test('deve remover o erro da tela quando o usuário corrigir o erro', async ({ page }) => {
+      const { btn, input } = getAll(page)
 
+      await input.fill('abc')
+      await btn.click()
+
+      const errorText = 'Descrição precisa ter mais de 3 caracteres'
+      const error = page.getByText(errorText)
+
+      await error.waitFor({ state: 'attached', timeout: 5000})
+      await expect(error).toBeVisible()
+
+      await input.fill('Essa descrição é válida')
+      await btn.click()
+
+      await error.waitFor({ state: 'detached', timeout: 5000})
+      await expect(error).not.toBeVisible()
     })
   })
 })
